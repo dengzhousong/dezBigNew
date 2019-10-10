@@ -56,7 +56,7 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
-
+<script src="./libs/http.js"></script>
   <script>
     $(function () {
       $('.input_sub').click(function (e) {
@@ -69,7 +69,7 @@
           return;
         }
         $.ajax({
-          url:'http://localhost:8080/api/v1/admin/user/login',
+          url:BigNew.user_login,
           type:'post',
           dataType:'json',
           data:{
@@ -83,6 +83,7 @@
               $('#myModal').on('hidden.bs.modal', function (e) {
                 // do something...
                 //跳转首页
+                window.localStorage.setItem('token',backData.token);
                 window.location.href = './index.html';
               });
             }else{
