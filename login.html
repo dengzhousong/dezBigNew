@@ -80,14 +80,15 @@
             if(backData.code ==200){
               $('.modal-body>p').text(backData.msg);
               $('#myModal').modal();
-            }else{
-              $('.modal-body>p').text(backData.msg);
-              $('#myModal').modal();
               $('#myModal').on('hidden.bs.modal', function (e) {
                 // do something...
                 //跳转首页
                 window.location.href = './index.html';
               });
+            }else{
+              $('.modal-body>p').text(backData.msg);
+              $('#myModal').modal();
+          
             }
             
           }
