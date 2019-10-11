@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="./css/iconfont.css">
     <link rel="stylesheet" href="./css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="./libs/jquery.twbsPagination.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
 </head>
@@ -69,9 +70,111 @@
                 </tbody>
             </table>
             <div class="row text-center">
+                <!-- 分页插件HTML -->
+                <ul id="pagination" class="pagination-sm"></ul>
             </div>
         </div>
     </div>
+
+    <script src="./libs/http.js"></script>
+    <!-- 分类的模板 -->
+    <script id="act-list" type="text/html">
+        <option value="">所有分类</option>
+        {{each data v}}
+        <option value = "{{ v.id }}">{{ v.name }}</option>
+        {{/each}}
+    </script>
+    <!-- 列表的模板 -->
+    <script id="art_list" type="text/html">
+    {{each data.data v}}
+    <tr>
+            <td>{{ v.title }}</td>
+            <td>{{ v.author }}</td>
+            <td>{{ v.category }}</td>
+            <td class="text-center">{{ v.date }}</td>
+            <td class="text-center">{{ v.state }}</td>
+            <td class="text-center">
+                <a href="article_edit.html?id={{ v.id }}" class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id ="{{ v.id }}" class="btn btn-danger btn-xs delete">删除</a>
+            </td>
+        </tr>
+    {{/each}}
+    </script>
+    <script>
+        $(function () {
+            //   页面一加载就渲染所以的分类列表
+            $.ajax({
+                url: BigNew.category_list,
+                type: 'get',
+                dataType: 'json',
+                success: function (backData) {
+                    $('#selCategory').html(template('act-list', backData))
+                }
+            });
+
+            //   给筛选按钮注册点击事件
+
+            $('#btnSearch').click(function (e) {
+                e.preventDefault();
+               xiugai(1);
+            })
+            $('#btnSearch').trigger('click');
+
+            // 注册删除事件
+            $('.table>tbody').on('click','.btn-danger',function(){
+                $.ajax({
+                    url:BigNew.article_delete,
+                    type:'post',
+                    dataType:'json',
+                    data:{
+                        id:$(this).attr('data-id')
+                    },
+                    success: function(backData){
+                        if(backData.code==204){
+                            alert('删除成功');
+                            window.location.reload();
+                        }
+                    }
+                });
+            })
+
+            function getArticleList(page) {
+                $.ajax({
+                    url: BigNew.article_query,
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        type: $('#selCategory').val(),
+                        state: $('#selStatus').val(),
+                        page: page,
+                        perpage: 10
+                    },
+                    success: function (backData) {
+                        $('.table>tbody').html(template('art_list', backData));
+                        xiugai(backData.data.totalPage, page);
+                    }
+                });
+            }
+            function xiugai(totalPage, startPage) {
+                $('#pagination').twbsPagination('destroy');
+                $('#pagination').twbsPagination({
+                    totalPages: totalPage,//总页数
+                    startPage: startPage,//起始页数
+                    visiblePages: 6,//可见页数
+                    first: '首页',
+                    prev: '上一页',
+                    next: '下一页',
+                    last: '尾页',
+                    onPageClick: function (event, page) {
+                        if(startPage!=page){
+                            getArticleList(page);
+                        }
+                        console.log(page);
+                    }
+                });
+            }
+        })
+    </script>
 </body>
 
 </html>

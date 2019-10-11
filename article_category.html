@@ -115,6 +115,7 @@
                     $('.modal-footer>.btn-primary').text('编辑');
                     $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text());
                     $('#message-text').val($(e.relatedTarget).parent().prev().text());
+                    // 把id传给模态框的按钮
                     $('.modal-footer>.btn-primary').attr('data-id',$(e.relatedTarget).attr('data-id'))
                 }
 
