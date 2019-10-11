@@ -43,13 +43,148 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
-                                data-target="#myModal">新增分类</a>
+                            <a href="javascript:void(0)" class="btn btn-success btn-add" id="xinzengfenlei"
+                                data-toggle="modal" data-target="#myModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
+    <!-- 模态框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">类别管理</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">名称</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">类别</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary">添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./libs/http.js"></script>
+    <SCript id="art-list" type="text/html">
+        {{each data v}}
+        <tr>
+                <td>{{ v.name }}</td>
+                <td>{{ v.slug }}</td>
+                <td class="text-center">
+                    <a href="javascript:void(0)" data-id = "{{ v.id }}"  data-toggle="modal" data-target="#myModal" class=" btn btn-info btn-xs">编辑</a>
+                    <a href="javascript:void(0)" data-id = "{{ v.id }}" class="btn btn-danger btn-xs">删除</a>
+                </td>
+            </tr>
+        {{/each}}
+    </SCript>
+    <script>
+        $(function () {
+            $.ajax({
+                url: BigNew.category_list,
+                type: 'get',
+                dataType: 'json',
+                success: function (backData) {
+                    $('.table>tbody').html(template('art-list', backData));
+
+                }
+            });
+
+
+            // 新增和编辑按钮
+            $('#myModal').on('shown.bs.modal', function (e) {
+                // do something...
+                // console.log(e.relatedTarget);//这返回的是一个dom对象
+                if (e.relatedTarget == $('.btn-add')[0]) {
+                    $('.modal-footer>.btn-primary').text('新增');
+                } else {
+                    $('.modal-footer>.btn-primary').text('编辑');
+                    $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text());
+                    $('#message-text').val($(e.relatedTarget).parent().prev().text());
+                    $('.modal-footer>.btn-primary').attr('data-id',$(e.relatedTarget).attr('data-id'))
+                }
+
+            })
+
+            // 模态框的点击新增按钮
+            $('.modal-footer>.btn-primary').click(function () {
+                if ($(this).text() == '新增') {
+                    $.ajax({
+                        url: BigNew.category_add,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+                        },
+                        success: function (backData) {
+                            if (backData.code == 201) {
+                                window.location.reload();
+                            }
+                        }
+                    });
+
+                } else {
+                    $.ajax({
+                        url: BigNew.category_edit,
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            id: $(this).attr('data-id'),
+                            name: $('#recipient-name').val(),
+                            slug: $('#message-text').val()
+
+                        },
+                        success: function (backData) {
+                            if (backData.code == 200) {
+                                window.location.reload();
+                            }
+
+                        }
+                    });
+                }
+            })
+
+            // 模态框的点击关闭按钮
+            $('.modal-footer>.btn-default').click(function () {
+                // reset是个dom对象
+                $('.modal-body>form')[0].reset();
+            })
+
+            // 点击删除按钮
+            $('body').on('click', '.text-center>.btn-danger', function () {
+                $.ajax({
+                    url: BigNew.category_delete,
+                    type: 'post',
+                    dataType: 'json',
+                    data: {
+                        id: $(this).attr('data-id')
+                    },
+                    success: function (backData) {
+                        if (backData.code == 204) {
+                            alert(backData.msg);
+                            window.location.reload();
+                        }
+
+                    }
+                });
+            })
+        })
+    </script>
+</body>
 
 </html>
