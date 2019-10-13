@@ -94,7 +94,7 @@
             <td class="text-center">{{ v.date }}</td>
             <td class="text-center">{{ v.state }}</td>
             <td class="text-center">
-                <a href="article_edit.html?id={{ v.id }}" class="btn btn-default btn-xs">编辑</a>
+                <a href="article_edit.html?id={{ v.id }}" class="btn btn-default btn-xs btn-bianji">编辑</a>
                 <a href="javascript:void(0);" data-id ="{{ v.id }}" class="btn btn-danger btn-xs delete">删除</a>
             </td>
         </tr>
@@ -137,6 +137,22 @@
                     }
                 });
             })
+
+            $('#release_btn').click(function(){
+                //侧边栏 发布文章二级列表高亮 : 主动触发二级列表的点击事件
+
+                /* 
+                $('选择器',DOM树) ： 第二个参数 默认是当前  window.document
+                        window.parent.document : 父窗口的dom树
+                
+                $('选择器') ： 当前页面查找元素    默认第二个参数是当前DOM树
+                $('选择器',window.parent.document) ： 父页面查找元素    
+                */
+                $('.level02>li:eq(1)',window.parent.document).trigger('click');
+            
+
+            });
+
 
             function getArticleList(page) {
                 $.ajax({
